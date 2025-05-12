@@ -9,7 +9,6 @@
 </head>
 
 <body>
-    <p>esto es una pruva de git </p>
     <!-- El encabezado principal de la página -->
     <header class="header">
         <!-- <header>: sección semántica que representa la cabecera de la página -->
@@ -36,6 +35,8 @@
          id="principal": identificador único que permite acceder a este elemento desde JavaScript o CSS -->
 
         <!-- Sección de las carreras, organizada en forma de cuadrícula -->
+        <button class="boton" id="genCarrera"onclick="crearCarrera()">Agregar Carera</button>
+        <button class="boton" id="">INICIO</button>
         <div class="grid" id="carreras">
             <!-- <div>: contenedor genérico.
              class="cuadricula": se usará para aplicar un estilo tipo grid o cuadrícula.
@@ -45,6 +46,10 @@
 
             <div class="tarjeta sistemas" onclick="mostrarAnios('Sistemas Informáticos')">
                 Sistemas Informáticos
+            </div>
+
+            <div class="tarjeta medicina" onclick="mostrarAnios('Medicina Veterinaria')">
+                Medicina Veterinaria
             </div>
             <!-- class="tarjeta sistemas": combinación de clases, una general (tarjeta) y una específica (sistemas).
              onclick="mostrarAnios('Sistemas Informáticos')": ejecuta una función JavaScript pasando el nombre de la carrera como argumento -->

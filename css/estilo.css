@@ -1,14 +1,8 @@
-/* ============================== */
-
-
-/* VARIABLES GLOBALES            */
-
-
-/* ============================== */
 
 :root {
     /* Definimos variables CSS para colores y sombra que se reutilizan en todo el documento */
     --color-sistemas: #1e90ff;
+    --color-medicina: #f8e87c;
     /* Azul para la carrera de Sistemas Informáticos */
     --color-fondo: #f4f6f8;
     /* Fondo general de la página */
@@ -168,22 +162,10 @@ h3 {
     color: white;
 }
 
-.tarjeta.electronica {
+.tarjeta.medicina {
     margin-top: 20px;
-    background-color: var(--color-electronica);
-    color: white;
-}
-
-.tarjeta.alimentos {
-    margin-top: 20px;
-    background-color: var(--color-alimentos);
-    color: white;
-}
-
-.tarjeta.contaduria {
-    margin-top: 20px;
-    background-color: var(--color-contaduria);
-    color: white;
+    background-color: var(--color-medicina);
+    color: black;
 }
 
 

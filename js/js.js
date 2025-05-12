@@ -58,6 +58,7 @@ function mostrarPanelAdministrador() {
         <label>Carrera:
             <select id="adminCarrera">
                 <option>Sistemas Informáticos</option>
+                <option>Medicina Veterinaria</option>
             </select>
         </label>
         <br><br>
@@ -80,6 +81,69 @@ function mostrarPanelAdministrador() {
         <button onclick="reiniciarDesdePanel()" class="boton" style="background-color: #d9534f;">❌ Eliminar datos</button>
     `;
 }
+addEventListener('DOMContentLoaded',cargarCarrerasGuardadas);
+function crearCarrera() {
+    const nombreCarrera = prompt("Introduce el nombre de la nueva carrera:");
+    if(nombreCarrera && nombreCarrera.trim() !== "") {
+        agregarTarjetaCarrera(nombreCarrera);
+        guardarCarrera(nombreCarrera);
+    }else {
+        alert("El nombre de la carrera no puede estar vacío.");
+    }
+}
+function agregarTarjetaCarrera(nombre) {
+    const nuevaTarjeta = document.createElement('div');
+    nuevaTarjeta.className = 'tarjeta nueva-carrera';
+//ASIGNAR UN COLOR 
+    const color = ['#FFA133'];
+    nuevaTarjeta.style.backgroundColor = color;
+
+    const texto = document.createElement('span');
+    texto.textContent = nombre;
+    texto.style.cursor = 'pointer';
+    texto.onclick = function() {
+        mostrarAnios(nombre);
+    }
+
+
+const botonEliminar = document.createElement('button');
+botonEliminar.textContent = '❌';
+botonEliminar.className = 'boton-eliminar';
+botonEliminar.onclick = function(event) {
+    event.stopPropagation(); // Evita que el evento de clic se propague al padre
+    eliminarCarrera(nombre,nuevaTarjeta);
+    };
+
+    nuevaTarjeta.appendChild(texto);
+    nuevaTarjeta.appendChild(botonEliminar);
+    document.getElementById('contenido').appendChild(nuevaTarjeta);
+    }
+function guardarCarrera(nombre) {
+    let carreras = JSON.parse(localStorage.getItem('carreras')) || [];
+    if(!carreras.includes(nombre)) {
+        carreras.push(nombre);
+        localStorage.setItem('carreras', JSON.stringify(carreras));
+    }
+    }
+function cargarCarrerasGuardadas() {
+    let carreras = JSON.parse(localStorage.getItem('carreras')) || [];
+    carreras.forEach(nombre => agregarTarjetaCarrera(nombre));
+    // Aquí puedes agregar más lógica para cargar las carreras guardadas
+}
+
+//ELIMINAR CARRERA
+function eliminarCarrera(nombre,elemento) {
+    if(confirm(`¿Estás seguro de que deseas eliminar la carrera "${nombre}"?`)) {
+        let carreras = JSON.parse(localStorage.getItem('carreras')) || [];
+        carreras = carreras.filter(c => c !== nombre);
+        localStorage.setItem('carreras', JSON.stringify(carreras));
+
+        // Eliminar la tarjeta del DOM
+        elemento.parentElement.remove();
+    }
+}
+
+// ----------------------
 
 // ----------------------
 // 🧹 Función que elimina los datos almacenados para una combinación específica
