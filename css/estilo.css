@@ -10,12 +10,6 @@
     /* Definimos variables CSS para colores y sombra que se reutilizan en todo el documento */
     --color-sistemas: #1e90ff;
     /* Azul para la carrera de Sistemas Informáticos */
-    --color-electronica: #28a745;
-    /* Verde para Electrónica */
-    --color-alimentos: #ff9800;
-    /* Naranja para Transformación de Alimentos */
-    --color-contaduria: #9c27b0;
-    /* Púrpura para Contaduría General */
     --color-fondo: #f4f6f8;
     /* Fondo general de la página */
     --color-encabezado: #343a40;

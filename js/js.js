@@ -58,9 +58,6 @@ function mostrarPanelAdministrador() {
         <label>Carrera:
             <select id="adminCarrera">
                 <option>Sistemas Informáticos</option>
-                <option>Electrónica</option>
-                <option>Transformación de Alimentos</option>
-                <option>Contaduría General</option>
             </select>
         </label>
         <br><br>
