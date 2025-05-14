@@ -283,120 +283,140 @@ function mostrarTrimestres(carrera, anio) {
         contenido.innerHTML = `
             <h2>${carrera} - ${anio}</h2>
             <div class='cuadricula'>
-                <div class="tarjeta" onclick="window.location.href='index.html?carrera=${encodeURIComponent(carrera)}&anio=${encodeURIComponent(anio)}&trimestre=1er Trimestre'">1er Trimestre</div>
-                <div class="tarjeta" onclick="window.location.href='index.html?carrera=${encodeURIComponent(carrera)}&anio=${encodeURIComponent(anio)}&trimestre=2do Trimestre'">2do Trimestre</div>
-                <div class="tarjeta" onclick="window.location.href='index.html?carrera=${encodeURIComponent(carrera)}&anio=${encodeURIComponent(anio)}&trimestre=3er Trimestre'">3er Trimestre</div>
+                <div class="tarjeta" onclick="mostrarTablaAsistencia('${carrera}', '${anio}', '1er Trimestre')">1er Trimestre</div>
+                <div class="tarjeta" onclick="mostrarTablaAsistencia('${carrera}', '${anio}', '2do Trimestre')">2do Trimestre</div>
+                <div class="tarjeta" onclick="mostrarTablaAsistencia('${carrera}', '${anio}', '3er Trimestre')">3er Trimestre</div>
             </div>`;
     } else {
         console.error("Error: El elemento con ID 'contenido' no se encontró en mostrarTrimestres.");
     }
 }
 
-
-
-function mostrarTablaAsistencia() {
-    // Obtiene el elemento del DOM donde se mostrará el contenido.
+function mostrarTablaAsistencia(carrera, anio, trimestre) {
     const contenido = document.getElementById('contenido');
     if (contenido) {
-        // Obtiene los parámetros de la URL.
-        const urlParams = new URLSearchParams(window.location.search);
-        const carrera = urlParams.get('carrera'); // Obtiene el valor del parámetro 'carrera'.
-        const anio = urlParams.get('anio');     // Obtiene el valor del parámetro 'anio'.
-        const trimestre = urlParams.get('trimestre'); // Obtiene el valor del parámetro 'trimestre'.
-
-        // Verifica si los parámetros obligatorios están presentes.
-        if (!carrera || !anio || !trimestre) {
-            contenido.innerHTML = "<h2>Error: Faltan parámetros en la URL</h2>";
-            console.error("Error: Faltan parámetros en la URL");
-            return; // Detiene la ejecución de la función si faltan parámetros.
-        }
-
-        // Muestra el encabezado de la tabla con la carrera, año y trimestre.
         contenido.innerHTML = `<h2>${carrera} - ${anio} - ${trimestre}</h2>`;
 
-        // Define la clave para acceder al trimestre en el objeto clavesTrimestre.
         const claveTrimestre = clavesTrimestre[trimestre];
-        // Define la clave para acceder a los datos de la tabla en localStorage.
         const claveAlmacenamiento = `${carrera}_${anio}_${claveTrimestre}`;
 
-        //  Cargar estudiantes desde localStorage
+        // Cargar estudiantes
         let listaEstudiantes = JSON.parse(localStorage.getItem(claveAlmacenamiento));
         if (!listaEstudiantes) {
-            listaEstudiantes = crearListaEstudiantesPorDefecto();
+            listaEstudiantes = crearListaEstudiantesPorDefecto(); // genera 45 estudiantes
             localStorage.setItem(claveAlmacenamiento, JSON.stringify(listaEstudiantes));
         }
 
-        // Cargar fechas desde localStorage
+        // Cargar fechas
         const fechas = JSON.parse(localStorage.getItem(claveAlmacenamiento + '_fechas')) || [];
+
+        // ✅ Bloque para agregar fechas si está activo el modo administrador
+        if (modoAdministradorActivo) {
+            const contenedorFecha = document.createElement('div');
+            contenedorFecha.style.margin = '1rem 0';
+
+            const entradaFecha = document.createElement('input');
+            entradaFecha.type = 'date';
+            entradaFecha.valueAsDate = new Date();
+            entradaFecha.style.marginRight = '0.5rem';
+            entradaFecha.className = 'boton';
+
+            const botonAgregarFecha = document.createElement('button');
+            botonAgregarFecha.textContent = 'Agregar Fecha';
+            botonAgregarFecha.className = 'boton';
+
+            // ✅ Evento correctamente asignado (sin duplicar)
+            botonAgregarFecha.onclick = () => {
+                const fechaSeleccionada = entradaFecha.value;
+                if (fechaSeleccionada) {
+                    const [anioStr, mesStr, diaStr] = fechaSeleccionada.split('-');
+                    const fechaObjeto = new Date(parseInt(anioStr), parseInt(mesStr) - 1, parseInt(diaStr));
+
+                    const dia = String(fechaObjeto.getDate()).padStart(2, '0');
+                    const mes = String(fechaObjeto.getMonth() + 1).padStart(2, '0');
+                    const anioFecha = fechaObjeto.getFullYear();
+                    const fechaFormateada = `${dia}/${mes}/${anioFecha}`; // DD/MM/YYYY
+
+                    let fechasActualizadas = JSON.parse(localStorage.getItem(claveAlmacenamiento + '_fechas')) || [];
+
+                    if (!fechasActualizadas.includes(fechaFormateada)) {
+                        fechasActualizadas.push(fechaFormateada);
+                        localStorage.setItem(claveAlmacenamiento + '_fechas', JSON.stringify(fechasActualizadas));
+
+                        // ✅ Volvemos a cargar la tabla con la nueva fecha
+                        mostrarTablaAsistencia(carrera, anio, trimestre);
+                    } else {
+                        alert("Esa fecha ya está en la lista.");
+                    }
+                }
+            };
+
+            contenedorFecha.appendChild(entradaFecha);
+            contenedorFecha.appendChild(botonAgregarFecha);
+            contenido.appendChild(contenedorFecha);
+        }
 
         // Crear tabla
         const tabla = document.createElement('table');
-        tabla.style.width = '100%'; // Establece el ancho de la tabla al 100% del contenedor.
+        tabla.style.width = '70%'; // Añadido para asegurar que la tabla ocupe el ancho completo
 
-        // Encabezado de la tabla
+        // ---------- ENCABEZADO ----------
         const encabezado = document.createElement('thead');
-        let filaEncabezado = '<tr><th style="width: 5%;">#</th><th style="width: 25%;">Nombre</th>'; // Define la fila del encabezado.
+        let filaEncabezado = '<tr><th style="width: 5%;">Número</th><th style="width: 25%;">Nombre</th>'; //anchos
 
-        // Itera sobre las fechas para agregar columnas al encabezado.
         fechas.forEach((fecha, indiceFecha) => {
             if (modoAdministradorActivo) {
-                // Si el modo administrador está activo, se agrega un botón para eliminar la fecha.
-                filaEncabezado += `<th style="width: 15%;">${fecha}<br>
-                    <button onclick="eliminarFecha('${claveAlmacenamiento}', ${indiceFecha})" class="eliminar-fecha-button">Eliminar</button>
-                </th>`;
+                filaEncabezado += `<th style="width: 7%;">${fecha}<br>
+                    <button onclick="eliminarFecha('${claveAlmacenamiento}', ${indiceFecha})" style="font-size:0.7rem; color:red; padding: 0; border: none; background: none; cursor: pointer;">Eliminar</button>
+                </th>`; //estilos
             } else {
-                // Si no, solo se muestra la fecha.
-                filaEncabezado += `<th style="width: 15%;">${fecha}</th>`;
+                filaEncabezado += `<th style="width: 7%;">${fecha}</th>`; //ancho
             }
         });
 
         filaEncabezado += '</tr>';
-        encabezado.innerHTML = filaEncabezado; // Asigna el HTML de la fila al encabezado.
-        tabla.appendChild(encabezado);             // Agrega el encabezado a la tabla.
+        encabezado.innerHTML = filaEncabezado;
+        tabla.appendChild(encabezado);
 
-        // Cuerpo de la tabla
+        // ---------- CUERPO ----------
         const cuerpo = document.createElement('tbody');
 
-        // Itera sobre la lista de estudiantes para crear las filas de la tabla.
         listaEstudiantes.forEach((estudiante, indice) => {
             const fila = document.createElement('tr');
 
             let celdaNombre;
             if (modoAdministradorActivo) {
-                // Si el modo administrador está activo, se muestra un input para editar el nombre del estudiante.
                 celdaNombre = `<input type="text" value="${estudiante.nombre}" 
                     onchange="actualizarNombreEstudiante('${claveAlmacenamiento}', ${indice}, this.value)" 
                     style="width: 100%; border: none; background: transparent; font-weight: bold;">`;
             } else {
-                // Si no, solo se muestra el nombre del estudiante.
                 celdaNombre = estudiante.nombre;
             }
 
             let contenidoFila = `<td>${indice + 1}</td><td>${celdaNombre}</td>`;
 
-            // Itera sobre las fechas para mostrar la asistencia de cada estudiante.
             fechas.forEach(fecha => {
-                const marca = estudiante.asistencia[fecha] || ''; // Obtiene la marca de asistencia para la fecha.
+                const marca = estudiante.asistencia[fecha] || '';
 
                 if (modoAdministradorActivo) {
-                    // Si el modo administrador está activo, se muestra un select para cambiar la asistencia.
                     contenidoFila += `<td><select onchange="actualizarAsistencia('${claveAlmacenamiento}', ${indice}, '${fecha}', this.value)">
                         <option value=""></option>
                         <option value="✓" ${marca === '✓' ? 'selected' : ''}>✓</option>
                         <option value="X" ${marca === 'X' ? 'selected' : ''}>X</option>
+                        <option value="LIC." ${marca === 'LIC.' ? 'selected' : ''}>LIC.</option>
+                        <option value="RET." ${marca === 'RET.' ? 'selected' : ''}>RET.</option>
                     </select></td>`;
                 } else {
-                    // Si no, se muestra la marca de asistencia con estilo.
-                    contenidoFila += `<td class="${marca === '✓' ? 'verde' : marca === 'X' ? 'rojo' : ''}">${marca}</td>`;
+                    contenidoFila += `<td class="${marca === '✓' ? 'verde' : marca === 'X' ? 'rojo' : marca === 'LIC.' ? 'morado' : marca === 'RET.' ? 'naranja' : ''}">${marca}</td>`;
                 }
             });
 
-            fila.innerHTML = contenidoFila; // Asigna el HTML de la fila al cuerpo.
-            cuerpo.appendChild(fila);       // Agrega la fila al cuerpo de la tabla.
+            fila.innerHTML = contenidoFila;
+            cuerpo.appendChild(fila);
         });
 
-        tabla.appendChild(cuerpo);          // Agrega el cuerpo a la tabla.
-        contenido.appendChild(tabla);      // Agrega la tabla al elemento del DOM.
+        tabla.appendChild(cuerpo);
+        contenido.appendChild(tabla); // Asegúrate de que la tabla se adjunte al contenido.
     } else {
         console.error("Error: El elemento con ID 'contenido' no se encontró en mostrarTablaAsistencia.");
     }
