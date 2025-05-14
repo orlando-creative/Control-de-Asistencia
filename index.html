@@ -30,37 +30,12 @@
     </header>
 
     <!-- Contenedor principal del contenido -->
-    <main id="principal">
-        <!-- <main>: etiqueta semántica que contiene el contenido principal del sitio.
-         id="principal": identificador único que permite acceder a este elemento desde JavaScript o CSS -->
-
-        <!-- Sección de las carreras, organizada en forma de cuadrícula -->
-        <button class="boton" id="genCarrera"onclick="crearCarrera()">Agregar Carera</button>
+      <main id="principal">
+        <button class="boton" id="genCarrera" onclick="crearCarrera()">Agregar Carera</button>
         <button class="boton" id="">INICIO</button>
         <div class="grid" id="carreras">
-            <!-- <div>: contenedor genérico.
-             class="cuadricula": se usará para aplicar un estilo tipo grid o cuadrícula.
-             id="carreras": permite seleccionar esta sección desde JavaScript o CSS -->
-
-            <!-- Cada una de estas "tarjetas" representa una carrera técnica -->
-
-            <div class="tarjeta sistemas" onclick="mostrarAnios('Sistemas Informáticos')">
-                Sistemas Informáticos
             </div>
-
-            <div class="tarjeta medicina" onclick="mostrarAnios('Medicina Veterinaria')">
-                Medicina Veterinaria
-            </div>
-            <!-- class="tarjeta sistemas": combinación de clases, una general (tarjeta) y una específica (sistemas).
-             onclick="mostrarAnios('Sistemas Informáticos')": ejecuta una función JavaScript pasando el nombre de la carrera como argumento -->
-
-
-            <!-- Estas tarjetas permiten al usuario seleccionar una carrera, lo que probablemente mostrará los años o niveles -->
-        </div>
-
-        <!-- Contenedor donde se mostrará contenido dinámico al seleccionar una carrera -->
         <div id="contenido"></div>
-        <!-- id="contenido": se utilizará con JavaScript para insertar contenido como trimestres, listas de estudiantes, etc. -->
     </main>
 
     <!-- Enlace al archivo JavaScript externo que contiene la lógica de la aplicación -->

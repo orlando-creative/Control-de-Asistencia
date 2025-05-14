@@ -41,131 +41,204 @@ function activarModoAdministrador() {
 // ----------------------
 // 🧰 Función para mostrar el panel de administración (interfaz de selección)
 // ----------------------
-function mostrarPanelAdministrador() {
-    // Verificamos si el modo administrador está activo
-    if (!modoAdministradorActivo) {
-        alert("Debes activar el modo administrador.");
-        return; // interrumpe la ejecución de la función si no se cumple la condición
-    }
+// Array para almacenar las carreras (se cargará desde localStorage)
 
-    // Seleccionamos el elemento del DOM donde se mostrará el contenido dinámico
-    const contenido = document.getElementById('contenido');
+// Array para almacenar las carreras (se cargará desde localStorage)
+// Array para almacenar las carreras (se cargará desde localStorage)
+let carreras = [];
 
-    // Insertamos directamente HTML dentro del contenedor con innerHTML
-    contenido.innerHTML = `
-        <h2>🛠 Panel de Administración</h2>
-        <p>Selecciona la carrera, año y trimestre que deseas reiniciar.</p>
-        <label>Carrera:
-            <select id="adminCarrera">
-                <option>Sistemas Informáticos</option>
-                <option>Medicina Veterinaria</option>
-            </select>
-        </label>
-        <br><br>
-        <label>Año:
-            <select id="adminAnio">
-                <option>4to</option>
-                <option>5to</option>
-                <option>6to</option>
-            </select>
-        </label>
-        <br><br>
-        <label>Trimestre:
-            <select id="adminTrimestre">
-                <option>1er Trimestre</option>
-                <option>2do Trimestre</option>
-                <option>3er Trimestre</option>
-            </select>
-        </label>
-        <br><br>
-        <button onclick="reiniciarDesdePanel()" class="boton" style="background-color: #d9534f;">❌ Eliminar datos</button>
-    `;
+function generarColorPastelAleatorio() {
+    const r = Math.floor(Math.random() * 106 + 150);
+    const g = Math.floor(Math.random() * 106 + 150);
+    const b = Math.floor(Math.random() * 106 + 150);
+    return `rgb(${r}, ${g}, ${b})`;
 }
-addEventListener('DOMContentLoaded',cargarCarrerasGuardadas);
-function crearCarrera() {
-    const nombreCarrera = prompt("Introduce el nombre de la nueva carrera:");
-    if(nombreCarrera && nombreCarrera.trim() !== "") {
-        agregarTarjetaCarrera(nombreCarrera);
-        guardarCarrera(nombreCarrera);
-    }else {
-        alert("El nombre de la carrera no puede estar vacío.");
+
+function guardarCarrera(nombreCarrera) {
+    if (nombreCarrera && nombreCarrera.trim() !== "" && !carreras.some(c => c && c.nombre === nombreCarrera)) {
+        const nuevoColor = generarColorPastelAleatorio();
+        carreras.push({ nombre: nombreCarrera, color: nuevoColor });
+        carreras.sort((a, b) => {
+            if (a && b && a.nombre && b.nombre) {
+                return a.nombre.localeCompare(b.nombre);
+            }
+            return 0; // Mantener el orden si alguna propiedad falta
+        });
+        localStorage.setItem("carreras", JSON.stringify(carreras));
+        mostrarCarrerasEnInicio();
+        actualizarOpcionesAdminCarrera();
     }
 }
-function agregarTarjetaCarrera(nombre) {
-    const nuevaTarjeta = document.createElement('div');
-    nuevaTarjeta.className = 'tarjeta nueva-carrera';
-//ASIGNAR UN COLOR 
-    const color = ['#FFA133'];
-    nuevaTarjeta.style.backgroundColor = color;
 
-    const texto = document.createElement('span');
-    texto.textContent = nombre;
-    texto.style.cursor = 'pointer';
-    texto.onclick = function() {
-        mostrarAnios(nombre);
-    }
-
-
-const botonEliminar = document.createElement('button');
-botonEliminar.textContent = '❌';
-botonEliminar.className = 'boton-eliminar';
-botonEliminar.onclick = function(event) {
-    event.stopPropagation(); // Evita que el evento de clic se propague al padre
-    eliminarCarrera(nombre,nuevaTarjeta);
-    };
-
-    nuevaTarjeta.appendChild(texto);
-    nuevaTarjeta.appendChild(botonEliminar);
-    document.getElementById('contenido').appendChild(nuevaTarjeta);
-    }
-function guardarCarrera(nombre) {
-    let carreras = JSON.parse(localStorage.getItem('carreras')) || [];
-    if(!carreras.includes(nombre)) {
-        carreras.push(nombre);
-        localStorage.setItem('carreras', JSON.stringify(carreras));
-    }
-    }
 function cargarCarrerasGuardadas() {
-    let carreras = JSON.parse(localStorage.getItem('carreras')) || [];
-    carreras.forEach(nombre => agregarTarjetaCarrera(nombre));
-    // Aquí puedes agregar más lógica para cargar las carreras guardadas
+    const storedCarreras = JSON.parse(localStorage.getItem('carreras'));
+    if (storedCarreras && Array.isArray(storedCarreras)) {
+        carreras = storedCarreras.map(c => {
+            return { nombre: c ? c.nombre : null, color: c ? c.color || generarColorPastelAleatorio() : generarColorPastelAleatorio() };
+        }).filter(c => c.nombre); // Filtrar elementos con nombre nulo
+    } else {
+        carreras = [];
+    }
+    mostrarCarrerasEnInicio();
+    actualizarOpcionesAdminCarrera();
 }
 
-//ELIMINAR CARRERA
-function eliminarCarrera(nombre,elemento) {
-    if(confirm(`¿Estás seguro de que deseas eliminar la carrera "${nombre}"?`)) {
-        let carreras = JSON.parse(localStorage.getItem('carreras')) || [];
-        carreras = carreras.filter(c => c !== nombre);
-        localStorage.setItem('carreras', JSON.stringify(carreras));
+function agregarTarjetaCarreraInicio(carrera) {
+    const contenedorCarrerasInicio = document.getElementById('carreras');
+    const nuevaTarjeta = document.createElement('div');
+    nuevaTarjeta.className = 'tarjeta';
+    nuevaTarjeta.textContent = carrera.nombre;
+    nuevaTarjeta.style.cursor = 'pointer';
+    nuevaTarjeta.style.backgroundColor = carrera.color;
+        nuevaTarjeta.onclick = function() {
+        mostrarAnios(carrera.nombre); // Asegúrate de que se llame a mostrarAnios con el nombre correcto
+    };
+    
 
-        // Eliminar la tarjeta del DOM
-        elemento.parentElement.remove();
+    // Botón de eliminar (solo visible en modo administrador)
+    if (modoAdministradorActivo) {
+        const botonEliminar = document.createElement('button');
+        botonEliminar.textContent = '❌';
+        botonEliminar.className = 'boton-eliminar';
+        botonEliminar.onclick = function(event) {
+            event.stopPropagation();
+            eliminarCarrera(carrera.nombre, nuevaTarjeta);
+        };
+        nuevaTarjeta.appendChild(botonEliminar);
+    }
+
+    contenedorCarrerasInicio.appendChild(nuevaTarjeta);
+}
+
+function mostrarCarrerasEnInicio() {
+    const contenedorCarrerasInicio = document.getElementById('carreras');
+    if (contenedorCarrerasInicio) {
+        contenedorCarrerasInicio.innerHTML = '';
+        carreras.forEach(carrera => {
+            if (carrera && carrera.nombre) {
+                agregarTarjetaCarreraInicio(carrera);
+            }
+        });
+    } else {
+        console.error("Error: El elemento con ID 'carreras' no se encontró.");
     }
 }
 
-// ----------------------
+function eliminarCarrera(nombre, elemento) {
+    if (confirm(`¿Estás seguro de que deseas eliminar la carrera "${nombre}"?`)) {
+        carreras = carreras.filter(c => c && c.nombre !== nombre);
+        localStorage.setItem('carreras', JSON.stringify(carreras));
+        elemento.remove();
+        mostrarCarrerasEnInicio();
+        actualizarOpcionesAdminCarrera();
+    }
+}
 
-// ----------------------
-// 🧹 Función que elimina los datos almacenados para una combinación específica
-// ----------------------
+function actualizarOpcionesAdminCarrera() {
+    const selectAdminCarrera = document.getElementById('adminCarrera');
+    if (selectAdminCarrera) {
+        selectAdminCarrera.innerHTML = '';
+        carreras.forEach(carrera => {
+            if (carrera && carrera.nombre) {
+                const opcion = document.createElement('option');
+                opcion.value = carrera.nombre;
+                opcion.textContent = carrera.nombre;
+                selectAdminCarrera.appendChild(opcion);
+            }
+        });
+    }
+}
+
+function mostrarPanelAdministrador() {
+    const contenido = document.getElementById('contenido');
+    if (contenido) {
+        if (!modoAdministradorActivo) {
+            alert("Debes activar el modo administrador.");
+            contenido.innerHTML = ''; // Limpiar el contenido si no está en modo admin
+            return;
+        }
+
+        contenido.innerHTML = `
+            <h2>🛠 Panel de Administración</h2>
+            <p>Selecciona la carrera, año y trimestre que deseas reiniciar.</p>
+            <label>Carrera:
+                <select id="adminCarrera">
+                    ${carreras.filter(c => c && c.nombre).map(carrera => `<option value="${carrera.nombre}">${carrera.nombre}</option>`).join('')}
+                </select>
+            </label>
+            <br><br>
+            <label>Año:
+                <select id="adminAnio">
+                    <option>4to</option>
+                    <option>5to</option>
+                    <option>6to</option>
+                </select>
+            </label>
+            <br><br>
+            <label>Trimestre:
+                <select id="adminTrimestre">
+                    <option>1er Trimestre</option>
+                    <option>2do Trimestre</option>
+                    <option>3er Trimestre</option>
+                </select>
+            </label>
+            <br><br>
+            <button onclick="reiniciarDesdePanel()" class="boton" style="background-color: #d9534f;">❌ Eliminar datos</button>
+        `;
+    } else {
+        console.error("Error: El elemento con ID 'contenido' no se encontró.");
+    }
+}
+
+function crearCarrera() {
+        if (!modoAdministradorActivo) {
+        alert("Debes activar el modo administrador.");
+        contenido.innerHTML = ''; // Limpiar el contenido si no está en modo admin
+        return;
+    }
+    const nombreCarrera = prompt("Introduce el nombre de la nueva carrera:");
+    guardarCarrera(nombreCarrera); // La validación se hace dentro de guardarCarrera
+}
+
+function mostrarInicio() {
+    const contenido = document.getElementById('contenido');
+    if (contenido) {
+        contenido.innerHTML = '';
+    } else {
+        console.error("Error: El elemento con ID 'contenido' no se encontró.");
+    }
+    mostrarCarrerasEnInicio();
+}
+
 function reiniciarDesdePanel() {
-    // Obtenemos los valores seleccionados por el administrador
-    const carrera = document.getElementById('adminCarrera').value;
-    const anio = document.getElementById('adminAnio').value;
-    const trimestre = document.getElementById('adminTrimestre').value;
+    const carreraSelect = document.getElementById('adminCarrera');
+    const anioSelect = document.getElementById('adminAnio');
+    const trimestreSelect = document.getElementById('adminTrimestre');
 
-    // Creamos la clave completa que se utiliza como identificador único en localStorage
-    const clave = `${carrera}_${anio}_${trimestre}`;
+    if (!carreraSelect || !anioSelect || !trimestreSelect) {
+        alert("Error: No se encontraron los elementos del panel de administración.");
+        return;
+    }
 
-    // confirm() muestra una ventana de confirmación (OK o Cancelar)
-    const confirmar = confirm(`¿Seguro que deseas eliminar todos los datos de asistencia para:\n\n${clave} ?`);
-    if (!confirmar) return; // si se cancela, detenemos la función
+    const carrera = carreraSelect.value;
+    const anio = anioSelect.value;
+    const trimestre = trimestreSelect.value;
+    const claveTrimestre = clavesTrimestre[trimestre]; // Asegúrate de que clavesTrimestre esté definido
 
-    // Eliminamos del almacenamiento local la lista de estudiantes y las fechas
-    localStorage.removeItem(clave);
-    localStorage.removeItem(clave + '_fechas');
+    if (!claveTrimestre) {
+        alert("Error: Trimestre no válido.");
+        return;
+    }
 
-    alert(`Datos eliminados para ${clave}`);
+    const claveAlmacenamiento = `${carrera}_${anio}_${claveTrimestre}`;
+
+    const confirmar = confirm(`¿Seguro que deseas eliminar todos los datos de asistencia para:\n\n${carrera} - ${anio} - ${trimestre} ?`);
+    if (!confirmar) return;
+
+    localStorage.removeItem(claveAlmacenamiento);
+    localStorage.removeItem(claveAlmacenamiento + '_fechas');
+
+    alert(`Datos eliminados para ${carrera} - ${anio} - ${trimestre}`);
     mostrarAnios(carrera); // Volvemos a la vista de los años para esa carrera
 }
 
@@ -191,94 +264,163 @@ function crearListaEstudiantesPorDefecto() {
 // ----------------------
 function mostrarAnios(carrera) {
     const contenido = document.getElementById('contenido');
-    contenido.innerHTML = `
-        <h2>${carrera}</h2>
-        <div class='cuadricula'>
-            <div class="tarjeta" onclick="mostrarTrimestres('${carrera}', '4to')">4to de Secundaria</div>
-            <div class="tarjeta" onclick="mostrarTrimestres('${carrera}', '5to')">5to de Secundaria</div>
-            <div class="tarjeta" onclick="mostrarTrimestres('${carrera}', '6to')">6to de Secundaria</div>
-        </div>`;
+    if (contenido) {
+        contenido.innerHTML = `
+            <h2>${carrera}</h2>
+            <div class='cuadricula'>
+                <div class="tarjeta" onclick="mostrarTrimestres('${carrera}', '4to')">4to de Secundaria</div>
+                <div class="tarjeta" onclick="mostrarTrimestres('${carrera}', '5to')">5to de Secundaria</div>
+                <div class="tarjeta" onclick="mostrarTrimestres('${carrera}', '6to')">6to de Secundaria</div>
+            </div>`;
+    } else {
+        console.error("Error: El elemento con ID 'contenido' no se encontró en mostrarAnios.");
+    }
 }
 
-// ----------------------
-// 🧭 Función que muestra los tres trimestres disponibles para un año y carrera
-// ----------------------
 function mostrarTrimestres(carrera, anio) {
     const contenido = document.getElementById('contenido');
-    contenido.innerHTML = `
-        <h2>${carrera} - ${anio}</h2>
-        <div class='cuadricula'>
-            <div class="tarjeta" onclick="mostrarTablaAsistencia('${carrera}', '${anio}', '1er Trimestre')">1er Trimestre</div>
-            <div class="tarjeta" onclick="mostrarTablaAsistencia('${carrera}', '${anio}', '2do Trimestre')">2do Trimestre</div>
-            <div class="tarjeta" onclick="mostrarTablaAsistencia('${carrera}', '${anio}', '3er Trimestre')">3er Trimestre</div>
-        </div>`;
-}
-// Esta función permite reiniciar (eliminar) los datos de asistencia de una combinación específica de carrera, año y trimestre
-function reiniciarDesdePanel() {
-    // Obtenemos los valores seleccionados del panel de administración usando la propiedad `.value`
-    const carrera = document.getElementById('adminCarrera').value;
-    const anio = document.getElementById('adminAnio').value;
-    const trimestre = document.getElementById('adminTrimestre').value;
-
-    // Creamos una clave única concatenando los valores seleccionados
-    // Esta clave será usada para identificar los datos en `localStorage`
-    const clave = `${carrera}_${anio}_${trimestre}`;
-
-    // Confirmamos con el usuario si realmente desea eliminar los datos
-    const confirmar = confirm(`¿Seguro que deseas eliminar todos los datos de asistencia para:\n\n${clave} ?`);
-    if (!confirmar) return; // Si el usuario cancela, terminamos la función
-
-    // Eliminamos los datos del almacenamiento local usando `localStorage.removeItem`
-    localStorage.removeItem(clave); // Elimina la lista de estudiantes
-    localStorage.removeItem(clave + '_fechas'); // Elimina las fechas asociadas
-
-    alert(`Datos eliminados para ${clave}`); // Mostramos confirmación
-    mostrarAnios(carrera); // Redirigimos a la vista de años de esa carrera
-}
-
-// Esta función genera una lista por defecto de 45 estudiantes con nombres genéricos y sin asistencia
-function crearListaEstudiantesPorDefecto() {
-    const estudiantes = []; // Creamos un arreglo vacío
-    for (let i = 1; i <= 45; i++) {
-        // Usamos `push` para insertar objetos con nombre y un objeto vacío para la asistencia
-        estudiantes.push({
-            nombre: `Estudiante ${i}`,
-            asistencia: {} // Objeto vacío que se llenará con las fechas y marcas
-        });
+    if (contenido) {
+        contenido.innerHTML = `
+            <h2>${carrera} - ${anio}</h2>
+            <div class='cuadricula'>
+                <div class="tarjeta" onclick="mostrarTablaAsistencia('${carrera}', '${anio}', '1er Trimestre')">1er Trimestre</div>
+                <div class="tarjeta" onclick="mostrarTablaAsistencia('${carrera}', '${anio}', '2do Trimestre')">2do Trimestre</div>
+                <div class="tarjeta" onclick="mostrarTablaAsistencia('${carrera}', '${anio}', '3er Trimestre')">3er Trimestre</div>
+            </div>`;
+    } else {
+        console.error("Error: El elemento con ID 'contenido' no se encontró en mostrarTrimestres.");
     }
-    return estudiantes; // Retornamos la lista generada
 }
 
-// Esta función muestra los años escolares para una carrera seleccionada
-function mostrarAnios(carrera) {
-    const contenido = document.getElementById('contenido'); // Obtenemos el contenedor principal
+function mostrarTablaAsistencia(carrera, anio, trimestre) {
+    const contenido = document.getElementById('contenido');
+    if (contenido) {
+        contenido.innerHTML = `<h2>${carrera} - ${anio} - ${trimestre}</h2>`;
 
-    // Inyectamos HTML dinámicamente al contenedor
-    contenido.innerHTML = `
-        <h2>${carrera}</h2>
-        <div class='cuadricula'>
-            <div class="tarjeta" onclick="mostrarTrimestres('${carrera}', '4to')">4to de Secundaria</div>
-            <div class="tarjeta" onclick="mostrarTrimestres('${carrera}', '5to')">5to de Secundaria</div>
-            <div class="tarjeta" onclick="mostrarTrimestres('${carrera}', '6to')">6to de Secundaria</div>
-        </div>`;
+        const claveTrimestre = clavesTrimestre[trimestre];
+        const claveAlmacenamiento = `${carrera}_${anio}_${claveTrimestre}`;
+
+        // Cargar estudiantes
+        let listaEstudiantes = JSON.parse(localStorage.getItem(claveAlmacenamiento));
+        if (!listaEstudiantes) {
+            listaEstudiantes = crearListaEstudiantesPorDefecto(); // genera 45 estudiantes
+            localStorage.setItem(claveAlmacenamiento, JSON.stringify(listaEstudiantes));
+        }
+
+        // Cargar fechas
+        const fechas = JSON.parse(localStorage.getItem(claveAlmacenamiento + '_fechas')) || [];
+
+        // ✅ Bloque para agregar fechas si está activo el modo administrador
+        if (modoAdministradorActivo) {
+            const contenedorFecha = document.createElement('div');
+            contenedorFecha.style.margin = '1rem 0';
+
+            const entradaFecha = document.createElement('input');
+            entradaFecha.type = 'date';
+            entradaFecha.valueAsDate = new Date();
+            entradaFecha.style.marginRight = '0.5rem';
+            entradaFecha.className = 'boton';
+
+            const botonAgregarFecha = document.createElement('button');
+            botonAgregarFecha.textContent = 'Agregar Fecha';
+            botonAgregarFecha.className = 'boton';
+
+            // ✅ Evento correctamente asignado (sin duplicar)
+            botonAgregarFecha.onclick = () => {
+                const fechaSeleccionada = entradaFecha.value;
+                if (fechaSeleccionada) {
+                    const [anioStr, mesStr, diaStr] = fechaSeleccionada.split('-');
+                    const fechaObjeto = new Date(parseInt(anioStr), parseInt(mesStr) - 1, parseInt(diaStr));
+
+                    const dia = String(fechaObjeto.getDate()).padStart(2, '0');
+                    const mes = String(fechaObjeto.getMonth() + 1).padStart(2, '0');
+                    const anioFecha = fechaObjeto.getFullYear();
+                    const fechaFormateada = `${dia}/${mes}/${anioFecha}`; // DD/MM/YYYY
+
+                    let fechasActualizadas = JSON.parse(localStorage.getItem(claveAlmacenamiento + '_fechas')) || [];
+
+                    if (!fechasActualizadas.includes(fechaFormateada)) {
+                        fechasActualizadas.push(fechaFormateada);
+                        localStorage.setItem(claveAlmacenamiento + '_fechas', JSON.stringify(fechasActualizadas));
+
+                        // ✅ Volvemos a cargar la tabla con la nueva fecha
+                        mostrarTablaAsistencia(carrera, anio, trimestre);
+                    } else {
+                        alert("Esa fecha ya está en la lista.");
+                    }
+                }
+            };
+
+            contenedorFecha.appendChild(entradaFecha);
+            contenedorFecha.appendChild(botonAgregarFecha);
+            contenido.appendChild(contenedorFecha);
+        }
+
+        // Crear tabla
+        const tabla = document.createElement('table');
+        tabla.style.width = '70%'; // Añadido para asegurar que la tabla ocupe el ancho completo
+
+        // ---------- ENCABEZADO ----------
+        const encabezado = document.createElement('thead');
+        let filaEncabezado = '<tr><th style="width: 5%;">Número</th><th style="width: 25%;">Nombre</th>'; //anchos
+
+        fechas.forEach((fecha, indiceFecha) => {
+            if (modoAdministradorActivo) {
+                filaEncabezado += `<th style="width: 7%;">${fecha}<br>
+                    <button onclick="eliminarFecha('${claveAlmacenamiento}', ${indiceFecha})" style="font-size:0.7rem; color:red; padding: 0; border: none; background: none; cursor: pointer;">Eliminar</button>
+                </th>`; //estilos
+            } else {
+                filaEncabezado += `<th style="width: 7%;">${fecha}</th>`; //ancho
+            }
+        });
+
+        filaEncabezado += '</tr>';
+        encabezado.innerHTML = filaEncabezado;
+        tabla.appendChild(encabezado);
+
+        // ---------- CUERPO ----------
+        const cuerpo = document.createElement('tbody');
+
+        listaEstudiantes.forEach((estudiante, indice) => {
+            const fila = document.createElement('tr');
+
+            let celdaNombre;
+            if (modoAdministradorActivo) {
+                celdaNombre = `<input type="text" value="${estudiante.nombre}" 
+                    onchange="actualizarNombreEstudiante('${claveAlmacenamiento}', ${indice}, this.value)" 
+                    style="width: 100%; border: none; background: transparent; font-weight: bold;">`;
+            } else {
+                celdaNombre = estudiante.nombre;
+            }
+
+            let contenidoFila = `<td>${indice + 1}</td><td>${celdaNombre}</td>`;
+
+            fechas.forEach(fecha => {
+                const marca = estudiante.asistencia[fecha] || '';
+
+                if (modoAdministradorActivo) {
+                    contenidoFila += `<td><select onchange="actualizarAsistencia('${claveAlmacenamiento}', ${indice}, '${fecha}', this.value)">
+                        <option value=""></option>
+                        <option value="✓" ${marca === '✓' ? 'selected' : ''}>✓</option>
+                        <option value="X" ${marca === 'X' ? 'selected' : ''}>X</option>
+                    </select></td>`;
+                } else {
+                    contenidoFila += `<td class="${marca === '✓' ? 'verde' : marca === 'X' ? 'rojo' : ''}">${marca}</td>`;
+                }
+            });
+
+            fila.innerHTML = contenidoFila;
+            cuerpo.appendChild(fila);
+        });
+
+        tabla.appendChild(cuerpo);
+        contenido.appendChild(tabla); // Asegúrate de que la tabla se adjunte al contenido.
+    } else {
+        console.error("Error: El elemento con ID 'contenido' no se encontró en mostrarTablaAsistencia.");
+    }
 }
-
-// Esta función muestra los trimestres disponibles para una carrera y año seleccionados
-function mostrarTrimestres(carrera, anio) {
-    const contenido = document.getElementById('contenido'); // Referencia al div principal
-
-    // Se genera el contenido HTML con tarjetas que permiten elegir cada trimestre
-    contenido.innerHTML = `
-        <h2>${carrera} - ${anio}</h2>
-        <div class='cuadricula'>
-            <div class="tarjeta" onclick="mostrarTablaAsistencia('${carrera}', '${anio}', '1er Trimestre')">1er Trimestre</div>
-            <div class="tarjeta" onclick="mostrarTablaAsistencia('${carrera}', '${anio}', '2do Trimestre')">2do Trimestre</div>
-            <div class="tarjeta" onclick="mostrarTablaAsistencia('${carrera}', '${anio}', '3er Trimestre')">3er Trimestre</div>
-        </div>`;
-}
-/******************************************************************
- * FUNCIONES PARA ACTUALIZAR, EDITAR Y ELIMINAR DATOS DE ASISTENCIA
- ******************************************************************/
+// * FUNCIONES PARA ACTUALIZAR, EDITAR Y ELIMINAR DATOS DE ASISTENCIA
+ //******************************************************************/
 
 /*
  * Función: actualizarAsistencia
@@ -355,125 +497,16 @@ function eliminarFecha(claveAlmacenamiento, indiceFecha) {
     mostrarTablaAsistencia(carrera, anio, nombresTrimestre[claveTrimestre]);
 }
 
-function mostrarTablaAsistencia(carrera, anio, trimestre) {
-    const contenido = document.getElementById('contenido');
-    contenido.innerHTML = `<h2>${carrera} - ${anio} - ${trimestre}</h2>`;
 
-    const claveTrimestre = clavesTrimestre[trimestre];
-    const claveAlmacenamiento = `${carrera}_${anio}_${claveTrimestre}`;
-
-    // Cargar estudiantes
-    let listaEstudiantes = JSON.parse(localStorage.getItem(claveAlmacenamiento));
-    if (!listaEstudiantes) {
-        listaEstudiantes = crearListaEstudiantesPorDefecto(); // genera 45 estudiantes
-        localStorage.setItem(claveAlmacenamiento, JSON.stringify(listaEstudiantes));
+// Event listener para el botón de INICIO
+document.addEventListener('DOMContentLoaded', () => {
+    const botonInicio = document.querySelector('#principal > .boton:nth-child(2)');
+    if (botonInicio) {
+        botonInicio.addEventListener('click', mostrarInicio);
+    } else {
+        console.error("Error: No se encontró el botón de INICIO.");
     }
+    cargarCarrerasGuardadas();
+});
 
-    // Cargar fechas
-    const fechas = JSON.parse(localStorage.getItem(claveAlmacenamiento + '_fechas')) || [];
-
-    // ✅ Bloque para agregar fechas si está activo el modo administrador
-    if (modoAdministradorActivo) {
-        const contenedorFecha = document.createElement('div');
-        contenedorFecha.style.margin = '1rem 0';
-
-        const entradaFecha = document.createElement('input');
-        entradaFecha.type = 'date';
-        entradaFecha.valueAsDate = new Date();
-        entradaFecha.style.marginRight = '0.5rem';
-        entradaFecha.className = 'boton';
-
-        const botonAgregarFecha = document.createElement('button');
-        botonAgregarFecha.textContent = 'Agregar Fecha';
-        botonAgregarFecha.className = 'boton';
-
-        // ✅ Evento correctamente asignado (sin duplicar)
-        botonAgregarFecha.onclick = () => {
-            const fechaSeleccionada = entradaFecha.value;
-            if (fechaSeleccionada) {
-                const [anioStr, mesStr, diaStr] = fechaSeleccionada.split('-');
-                const fechaObjeto = new Date(parseInt(anioStr), parseInt(mesStr) - 1, parseInt(diaStr));
-
-                const dia = String(fechaObjeto.getDate()).padStart(2, '0');
-                const mes = String(fechaObjeto.getMonth() + 1).padStart(2, '0');
-                const anioFecha = fechaObjeto.getFullYear();
-                const fechaFormateada = `${dia}/${mes}/${anioFecha}`; // DD/MM/YYYY
-
-                let fechasActualizadas = JSON.parse(localStorage.getItem(claveAlmacenamiento + '_fechas')) || [];
-
-                if (!fechasActualizadas.includes(fechaFormateada)) {
-                    fechasActualizadas.push(fechaFormateada);
-                    localStorage.setItem(claveAlmacenamiento + '_fechas', JSON.stringify(fechasActualizadas));
-
-                    // ✅ Volvemos a cargar la tabla con la nueva fecha
-                    mostrarTablaAsistencia(carrera, anio, trimestre);
-                } else {
-                    alert("Esa fecha ya está en la lista.");
-                }
-            }
-        };
-
-        contenedorFecha.appendChild(entradaFecha);
-        contenedorFecha.appendChild(botonAgregarFecha);
-        contenido.appendChild(contenedorFecha);
-    }
-
-    // Crear tabla
-    const tabla = document.createElement('table');
-
-    // ---------- ENCABEZADO ----------
-    const encabezado = document.createElement('thead');
-    let filaEncabezado = '<tr><th>#</th><th>Nombre</th>';
-
-    fechas.forEach((fecha, indiceFecha) => {
-        if (modoAdministradorActivo) {
-            filaEncabezado += `<th>${fecha}<br>
-                <button onclick="eliminarFecha('${claveAlmacenamiento}', ${indiceFecha})" style="font-size:10px; color:red;">Eliminar</button>
-            </th>`;
-        } else {
-            filaEncabezado += `<th>${fecha}</th>`;
-        }
-    });
-
-    filaEncabezado += '</tr>';
-    encabezado.innerHTML = filaEncabezado;
-    tabla.appendChild(encabezado);
-
-    // ---------- CUERPO ----------
-    const cuerpo = document.createElement('tbody');
-
-    listaEstudiantes.forEach((estudiante, indice) => {
-        const fila = document.createElement('tr');
-
-        let celdaNombre;
-        if (modoAdministradorActivo) {
-            celdaNombre = `<input type="text" value="${estudiante.nombre}" 
-                onchange="actualizarNombreEstudiante('${claveAlmacenamiento}', ${indice}, this.value)" 
-                style="width: 100%; border: none; background: transparent; font-weight: bold;">`;
-        } else {
-            celdaNombre = estudiante.nombre;
-        }
-
-        let contenidoFila = `<td>${indice + 1}</td><td>${celdaNombre}</td>`;
-
-        fechas.forEach(fecha => {
-            const marca = estudiante.asistencia[fecha] || '';
-
-            if (modoAdministradorActivo) {
-                contenidoFila += `<td><select onchange="actualizarAsistencia('${claveAlmacenamiento}', ${indice}, '${fecha}', this.value)">
-                    <option value=""></option>
-                    <option value="✓" ${marca === '✓' ? 'selected' : ''}>✓</option>
-                    <option value="X" ${marca === 'X' ? 'selected' : ''}>X</option>
-                </select></td>`;
-            } else {
-                contenidoFila += `<td class="${marca === '✓' ? 'verde' : marca === 'X' ? 'rojo' : ''}">${marca}</td>`;
-            }
-        });
-
-        fila.innerHTML = contenidoFila;
-        cuerpo.appendChild(fila);
-    });
-
-    tabla.appendChild(cuerpo);
-    contenido.appendChild(tabla);
-}
+addEventListener('DOMContentLoaded',cargarCarrerasGuardadas);
