@@ -1,0 +1,410 @@
+/* Identidad visual BTH: azul institucional, amarillo y colores por carrera */
+:root {
+    --azul-institucional: #162960;
+    --azul-secundario: #264A86;
+    --amarillo-institucional: #FFD900;
+    --cian-tecnologico: #00B8D9;
+    --color-sistemas: #E8D8A8;
+    --color-electronica: #456B92;
+    --color-alimentos: #FFFFFF;
+    --color-contaduria: #0D5B59;
+    --color-fondo: #F4F6FA;
+    --color-texto: #202A3A;
+    --color-texto-suave: #5A6678;
+    --color-borde: #D8DFE9;
+    --sombra-tarjeta: 0 3px 8px rgba(22, 41, 96, 0.08), 0 10px 24px rgba(22, 41, 96, 0.09);
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    color: var(--color-texto);
+    background: radial-gradient(circle at 95% 8%, rgba(0, 184, 217, 0.08), transparent 22rem), var(--color-fondo);
+    font-family: 'Aptos', 'Segoe UI', Arial, sans-serif;
+    line-height: 1.5;
+}
+
+.header {
+    padding: 1.15rem 1rem 1.3rem;
+    text-align: center;
+    color: var(--amarillo-institucional);
+    background: linear-gradient(120deg, var(--azul-institucional), var(--azul-secundario));
+    border-bottom: 5px solid var(--amarillo-institucional);
+    box-shadow: 0 8px 24px rgba(15, 31, 70, 0.24), 0 2px 15px rgba(0, 184, 217, 0.18);
+}
+
+h1,
+h2,
+h3 {
+    text-align: center;
+    line-height: 1.25;
+}
+
+h1,
+.titulo {
+    margin: 0 0 0.8rem;
+    color: var(--amarillo-institucional);
+    font-family: 'Trebuchet MS', 'Segoe UI', sans-serif;
+    font-size: clamp(1.35rem, 3vw, 2rem);
+    font-weight: 800;
+    letter-spacing: 0.035em;
+    text-transform: uppercase;
+}
+
+h2 {
+    margin: 1.25rem 0 0.8rem;
+    color: var(--azul-institucional);
+    font-family: 'Trebuchet MS', 'Segoe UI', sans-serif;
+    font-size: clamp(1.2rem, 2.5vw, 1.65rem);
+}
+
+h3 {
+    color: var(--azul-institucional);
+}
+
+#principal {
+    width: min(100% - 2rem, 1200px);
+    margin: 0 auto;
+    padding: 1.2rem 0 2rem;
+}
+
+.grid,
+.cuadricula {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
+    gap: 1.1rem;
+    align-items: stretch;
+}
+
+.cuadricula {
+    max-width: 950px;
+    margin: 0 auto;
+}
+
+.tarjeta {
+    appearance: none;
+    width: 100%;
+    min-height: 92px;
+    padding: 1.15rem;
+    border: 2px solid var(--color-borde);
+    border-radius: 14px;
+    color: var(--azul-institucional);
+    background: #FFFFFF;
+    box-shadow: var(--sombra-tarjeta);
+    cursor: pointer;
+    font: inherit;
+    font-size: 1.08rem;
+    font-weight: 750;
+    text-align: center;
+    transition: transform 180ms ease, box-shadow 180ms ease, filter 180ms ease;
+}
+
+.tarjeta:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 18px rgba(22, 41, 96, 0.18), 0 0 0 1px rgba(0, 184, 217, 0.28), 0 0 22px rgba(0, 184, 217, 0.2);
+    filter: brightness(0.98);
+}
+
+.tarjeta:focus-visible,
+.boton:focus-visible,
+input:focus-visible,
+select:focus-visible {
+    outline: 3px solid var(--amarillo-institucional);
+    outline-offset: 3px;
+    box-shadow: 0 0 0 5px rgba(0, 184, 217, 0.18);
+}
+
+/* Colores de las carreras BTH */
+.tarjeta.sistemas {
+    color: #111111;
+    background: var(--color-sistemas);
+    border-color: #222222;
+}
+
+.tarjeta.electronica {
+    color: #FFFFFF;
+    background: var(--color-electronica);
+    border-color: #263F5A;
+}
+
+.tarjeta.alimentos {
+    color: #171717;
+    background: var(--color-alimentos);
+    border-color: #333333;
+}
+
+.tarjeta.contaduria {
+    color: #FFFFFF;
+    background: var(--color-contaduria);
+    border-color: #083F3D;
+}
+
+.boton {
+    display: inline-flex;
+    min-height: 42px;
+    align-items: center;
+    justify-content: center;
+    padding: 0.62rem 1rem;
+    border: 2px solid var(--amarillo-institucional);
+    border-radius: 8px;
+    color: var(--azul-institucional);
+    background: var(--amarillo-institucional);
+    cursor: pointer;
+    font: inherit;
+    font-size: 0.96rem;
+    font-weight: 750;
+    text-decoration: none;
+    box-shadow: 0 3px 0 rgba(22, 41, 96, 0.16), 0 5px 12px rgba(22, 41, 96, 0.12);
+    transition: background-color 160ms ease, color 160ms ease, transform 160ms ease;
+}
+
+.boton:hover {
+    color: #FFFFFF;
+    background: var(--azul-secundario);
+    border-color: var(--azul-secundario);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(22, 41, 96, 0.22), 0 0 16px rgba(0, 184, 217, 0.28);
+}
+
+/* Paneles de acceso y contacto docente */
+.panel-acceso,
+.contacto-docente {
+    width: min(100%, 520px);
+    margin: 1rem auto;
+    padding: 1.25rem;
+    border: 1px solid var(--color-borde);
+    border-radius: 14px;
+    background: #FFFFFF;
+    box-shadow: 0 8px 24px rgba(22, 41, 96, 0.12), 0 0 18px rgba(0, 184, 217, 0.07);
+    text-align: center;
+}
+
+.panel-acceso {
+    width: min(100%, 260px);
+    padding: 0.75rem 0.9rem;
+}
+
+.panel-acceso h2 {
+    margin: 0.15rem 0 0.45rem;
+    font-size: 1.1rem;
+}
+
+.panel-acceso p,
+.contacto-docente p {
+    color: var(--color-texto-suave);
+}
+
+.panel-acceso p {
+    margin: 0.35rem 0 0.6rem;
+    font-size: 0.82rem;
+}
+
+.panel-acceso label,
+.contacto-docente label {
+    display: block;
+    width: min(100%, 380px);
+    margin: 0.55rem auto 0.25rem;
+    color: var(--azul-institucional);
+    font-size: 0.9rem;
+    font-weight: 700;
+    text-align: left;
+}
+
+.panel-acceso label {
+    width: 100%;
+    margin-top: 0.35rem;
+    font-size: 0.82rem;
+}
+
+.panel-acceso input,
+.contacto-docente input,
+select {
+    display: block;
+    width: min(100%, 380px);
+    min-height: 42px;
+    margin: 0.3rem auto 0.85rem;
+    padding: 0.62rem 0.75rem;
+    border: 1px solid #B9C4D3;
+    border-radius: 8px;
+    color: var(--color-texto);
+    background: #FBFCFE;
+    font: inherit;
+}
+
+.panel-acceso input {
+    width: 100%;
+    min-height: 36px;
+    margin: 0.15rem 0 0.5rem;
+    padding: 0.48rem 0.58rem;
+    font-size: 0.88rem;
+}
+
+.panel-acceso input:focus,
+.contacto-docente input:focus,
+select:focus {
+    border-color: var(--cian-tecnologico);
+    box-shadow: 0 0 0 3px rgba(0, 184, 217, 0.16);
+    outline: none;
+}
+
+.panel-acceso .boton,
+.contacto-docente .boton {
+    margin: 0.55rem 0 0;
+}
+
+.panel-acceso .boton {
+    min-height: 36px;
+    padding: 0.45rem 0.7rem;
+    font-size: 0.85rem;
+}
+
+.contacto-docente small {
+    display: block;
+    color: var(--color-texto-suave);
+}
+
+.nombre-contacto {
+    margin-bottom: 0.4rem;
+    color: var(--azul-institucional) !important;
+    font-size: 1.1rem;
+    font-weight: 750;
+}
+
+.telefono-contacto {
+    display: inline-flex;
+    align-items: center;
+    min-height: 42px;
+    padding: 0.55rem 0.85rem;
+    border: 1px solid #C9D8EC;
+    border-radius: 8px;
+    color: var(--azul-institucional);
+    background: #EDF4FC;
+    font-weight: 700;
+    text-decoration: none;
+    box-shadow: 0 3px 10px rgba(22, 41, 96, 0.1);
+}
+
+.telefono-contacto:hover {
+    color: var(--azul-institucional);
+    background: #DCEBFA;
+    border-color: var(--cian-tecnologico);
+}
+
+/* Tabla de asistencia */
+#contenido table {
+    display: block;
+    width: 100%;
+    margin-top: 1rem;
+    overflow-x: auto;
+    border-collapse: collapse;
+    border-radius: 10px;
+    background: #FFFFFF;
+    box-shadow: 0 6px 18px rgba(22, 41, 96, 0.11), 0 0 16px rgba(0, 184, 217, 0.06);
+}
+
+th,
+td {
+    padding: 0.65rem;
+    border: 1px solid var(--color-borde);
+    font-size: 0.94rem;
+    text-align: center;
+}
+
+th {
+    color: #FFFFFF;
+    background: var(--azul-institucional);
+    font-weight: 750;
+}
+
+th:nth-child(2),
+td:nth-child(2) {
+    min-width: 200px;
+    text-align: left;
+    white-space: nowrap;
+}
+
+th:not(:nth-child(1)):not(:nth-child(2)),
+td:not(:nth-child(1)):not(:nth-child(2)) {
+    min-width: 60px;
+    max-width: 90px;
+    white-space: nowrap;
+}
+
+td select {
+    width: auto;
+    min-width: 58px;
+    min-height: 36px;
+    margin: 0 auto;
+    padding: 0.35rem;
+}
+
+.verde {
+    color: #137A43;
+    font-weight: 800;
+}
+
+.rojo {
+    color: #C62828;
+    font-weight: 800;
+}
+
+.azul {
+    color: #2466A8;
+    font-weight: 800;
+}
+
+.oculto {
+    display: none;
+}
+
+@media (max-width: 600px) {
+    #principal {
+        width: min(100% - 1rem, 1200px);
+        padding-top: 0.75rem;
+    }
+
+    .header {
+        padding: 0.9rem 0.6rem 1rem;
+    }
+
+    .grid,
+    .cuadricula {
+        grid-template-columns: 1fr;
+        gap: 0.8rem;
+    }
+
+    .tarjeta {
+        min-height: 72px;
+        padding: 0.9rem;
+        font-size: 1rem;
+    }
+
+    .panel-acceso,
+    .contacto-docente {
+        padding: 1rem;
+    }
+
+    .panel-acceso {
+        width: min(100%, 260px);
+        padding: 0.7rem 0.8rem;
+    }
+
+    th,
+    td {
+        padding: 0.48rem;
+        font-size: 0.82rem;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        scroll-behavior: auto !important;
+        transition-duration: 0.01ms !important;
+    }
+}
